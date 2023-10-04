@@ -8,15 +8,6 @@
 // === Date ===
 Date::Date() : ymd{std::chrono::year(1970), std::chrono::month(1), std::chrono::day(1)}, serial(0) {}
 
-/*
-Date::Date(const Date &dt) : ymd(dt.ymd) {
-  if(!ymd.ok()) {
-    throw std::invalid_argument("Invalid Date");
-  }
-  update_serial();
-}
-*/
-
 Date::Date(std::chrono::sys_days &d) : ymd{d} {
   update_serial();
 }
@@ -53,6 +44,17 @@ unsigned Date::weekday_index() const {
   std::chrono::weekday wd{ std::chrono::sys_days{ymd} };
   return wd.c_encoding();
 }
+
+std::string Date::to_tz_tstamp() const {
+  std::string year = std::to_string(this->year());
+  year = std::string(4-year.length(),'0').append(year);
+  std::string month = std::to_string(this->month());
+  month = std::string(2-month.length(),'0').append(month);
+  std::string day = std::to_string(this->day());
+  day = std::string(2-day.length(),'0').append(day);
+  return year + month + day + "T000000Z";
+}
+
 
 void Date::change_day(int delta) {
   auto result = std::chrono::sys_days{ymd};
@@ -243,19 +245,6 @@ std::string CalendarRange::print_cal() {
     wk_end.change_day(DAYS_IN_WEEK);
   } while(wk_begin <= get_end());
   cal += separator + "+\n";
-  /*
-  unsigned wk_start_offset = get_begin().weekday_index();
-  Date d = get_begin();
-
-  cal += std::string(wk_start_offset * (DEFAULT_DAY_WIDTH+1), ' ');
-  do {
-    cal += "+" + std::string(DEFAULT_DAY_WIDTH, '-');
-    d.change_day(1);
-  } while (d.weekday_index() != 0);
-  cal += "+\n";
-  */
-
-
   cal += key;
   return cal;
 }
