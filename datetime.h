@@ -43,6 +43,8 @@ public:
   std::chrono::year_month_day ymd_obj() const;
   //return day of week S=0, M=1, T=2, W=3, T=4, F=5, S=6
   unsigned weekday_index() const;
+  //return date as string representing tz timestamp
+  std::string to_tz_tstamp() const;
 
   //=== Modifiers ===
 
