@@ -3,6 +3,7 @@
 #include <iostream>
 #include "datetime.h"
 #include "config.h"
+#include "color.h"
 
 // === Date ===
 Date::Date() : ymd{std::chrono::year(1970), std::chrono::month(1), std::chrono::day(1)}, serial(0) {}
@@ -150,21 +151,27 @@ CalendarRange::CalendarRange(Date &begin, Date &end) : TimeRange(begin, end) {}
 
 std::string CalendarRange::print_cal() {
 
+  std::string empty_day(DEFAULT_DAY_WIDTH + 1, ' ');
+  std::chrono::sys_days today_serial = std::chrono::sys_days{
+      std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
+  Date today = Date(today_serial);
+
   std::string cal = "";
+  std::string key = "";
 
   //set key
-  std::string key = "";
   for (size_t i = 0; i < events_in_range.size(); i++) {
-    key += events_in_range[i].get_tag() + ": " +
-           events_in_range[i].get_title() + '\n';
+    int color_idx = i % (sizeof(fg_colors) / sizeof(*fg_colors));
+    key += color(events_in_range[i].get_tag(), bg_colors[color_idx]);
+    key += ": ";
+    key += events_in_range[i].get_title() + '\n';
   }
 
-  std::string empty_day(DEFAULT_DAY_WIDTH+1, ' ');
+  //get full week containing begin
   Date wk_begin = get_begin();
   wk_begin.change_day(-static_cast<int>((get_begin().weekday_index())));
   Date wk_end = wk_begin;
   wk_end.change_day(DAYS_IN_WEEK);
-
 
   std::string separator = "";
   std::string date_row = "";
@@ -181,42 +188,51 @@ std::string CalendarRange::print_cal() {
     }
   }
 
-  do {
+  do { //for each week in the range
     cal += separator + "+\n";
     separator = "";
+    //for each day in the week
     for(Date d = wk_begin; d < wk_end && d <= get_end(); d.change_day(1)) {
       
       separator += "+" + std::string(DEFAULT_DAY_WIDTH, '-');
-      if(d < get_begin()) {
 
+      if(d < get_begin()) { // if current day is before range begin
         date_row += empty_day;
         for(size_t i = 0; i < event_strings.size(); ++i) {
           event_strings[i] += empty_day;
         }
-
       } else {
+        std::string date_str = std::to_string(d.day());
+        std::string spaces   = std::string(DEFAULT_DAY_WIDTH-1-(date_str.length()), ' ');
+        if(d == today) date_str = color(date_str, RED);
 
-        date_row += "| " + std::to_string(d.day()) 
-                + std::string(DEFAULT_DAY_WIDTH-1 - (std::to_string(d.day())).length(), ' ');
+        date_row += "| " + date_str + spaces;
         
+        //for each event
         for(size_t i = 0; i < events_in_range.size(); ++i) {
+          std::string colored_tag;
+          std::string colored_fill;
+          int color_idx = i % (sizeof(fg_colors) / sizeof(*fg_colors));
+          event_strings[i] += "|";
+
           if(events_in_range[i].contains(d)) {
-            if(d == events_in_range[i].get_begin()) {
-              event_strings[i] += "|*" + events_in_range[i].get_tag()
-              + std::string(DEFAULT_DAY_WIDTH-1 - (events_in_range[i].get_tag()).length(), '=');
-            } else if (d == events_in_range[i].get_end()) {
-              event_strings[i] += "|" + std::string(DEFAULT_DAY_WIDTH-1, '=') + "*";
-            } else {
-              event_strings[i] += "|" + std::string(DEFAULT_DAY_WIDTH, '=');
+            if(d == events_in_range[i].get_begin()) { //event begins on current day
+              colored_tag  = color(events_in_range[i].get_tag(), bg_colors[color_idx]);
+              colored_fill = color(std::string(DEFAULT_DAY_WIDTH-events_in_range[i].get_tag().length()-1,'='), fg_colors[color_idx]);
+              event_strings[i] += color("*", fg_colors[color_idx]) + colored_tag + colored_fill;
+            } else if (d == events_in_range[i].get_end()) { //event ends on current day
+              colored_fill = color(std::string(DEFAULT_DAY_WIDTH-1, '=')+"*", fg_colors[color_idx]);
+              event_strings[i] += colored_fill;
+            } else {  //event spans current day
+              colored_fill = color(std::string(DEFAULT_DAY_WIDTH, '='), fg_colors[color_idx]);
+              event_strings[i] += colored_fill;
             }
           } else {
-            event_strings[i] += "|" + std::string(DEFAULT_DAY_WIDTH, ' ');
+            event_strings[i] += std::string(DEFAULT_DAY_WIDTH, ' ');
           }
         }
-
       }
     }
-    //cal += separator + "+\n";
     cal += date_row + "|\n";
     date_row = "";
     for(size_t i = 0; i < event_strings.size(); ++i) {

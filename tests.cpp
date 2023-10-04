@@ -114,8 +114,8 @@ void event_tests() {
 void calendarrange_tests() {
   Date b2 = Date(2023, 1, 1);
   Date e2 = Date(2023, 1, 31); 
-  Date b3 = Date(2023, 1, 1);
-  Date e3 = Date(2023, 12, 31);
+  Date b3 = Date(2023, 2, 1);
+  Date e3 = Date(2023, 2, 28);
   CalendarRange cr1 = CalendarRange();
   CalendarRange cr2 = CalendarRange(b2, e2);
   CalendarRange cr3 = CalendarRange(b3, e3);
