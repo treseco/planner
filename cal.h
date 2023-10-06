@@ -8,13 +8,15 @@
 class Calendar {
 
 private:
+  CalendarRange range;
   std::vector<Event> events;
 
 public:
   Calendar();
   void load_events(std::string path);
   void save_events(std::string path);
-  void print_month();
+  void set_range(int by, unsigned bm, unsigned bd, int ey, unsigned em, unsigned ed);
+  void print();
   void new_event();
   void remove_event();
 };

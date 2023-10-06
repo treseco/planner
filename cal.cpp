@@ -60,42 +60,33 @@ void Calendar::save_events(std::string path) {
   std::ofstream ofs;
   ofs.open(path, std::ofstream::out);
 
-  ofs << "BEGIN:VCALENDAR" << std::endl;
+  ofs << "BEGIN:VCALENDAR" << "\r\n";
 
   for(size_t i = 0; i < events.size(); i++) {
-    ofs << "BEGIN:VEVENT" << std::endl
-        << "SUMMARY:" << events[i].get_title() << std::endl
-        << "DESCRIPTION:" << events[i].get_tag() << std::endl
-        << "DTSTART:" << events[i].get_begin().to_tz_tstamp() << std::endl
-        << "DTEND:" << events[i].get_end().to_tz_tstamp() << std::endl
-        << "END:VEVENT" << std::endl;
+    ofs << "BEGIN:VEVENT" << "\r\n"
+        << "SUMMARY:" << events[i].get_title() << "\r\n"
+        << "DESCRIPTION:" << events[i].get_tag() << "\r\n"
+        << "DTSTART:" << events[i].get_begin().to_tz_tstamp() << "\r\n"
+        << "DTEND:" << events[i].get_end().to_tz_tstamp() << "\r\n"
+        << "END:VEVENT" << "\r\n";
   }
 
-  ofs << "END:VCALENDAR" << std::endl;
+  ofs << "END:VCALENDAR" << "\r\n";
 
   ofs.close();
 }
 
+void Calendar::set_range(int by, unsigned bm, unsigned bd, int ey, unsigned em, unsigned ed) {
+  Date begin = Date(by, bm, bd);
+  Date end   = Date(ey, em, ed);
+  range = CalendarRange(begin, end);
+}
 
-void Calendar::print_month() {
-  //get current date
-  std::chrono::sys_days today_serial = std::chrono::sys_days{
-      std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
-  Date today = Date(today_serial);
-
-  //get number of days in current month
-  unsigned days_in_current_mon = static_cast<unsigned>(DAYS_IN_MONTH[today.month()-1]);
-
-  //get dates for beginning and end of current month
-  Date mon_begin = Date(today.year(), today.month(), 1);
-  Date mon_end = Date(today.year(), today.month(), days_in_current_mon);
-
-  //make CalendarRange for current month and set events
-  CalendarRange mon_range = CalendarRange(mon_begin, mon_end);
-  mon_range.set_events(&events);
+void Calendar::print() {
+  range.set_events(&events);
 
   //print out calendar with events
-  std::cout << mon_range.print_cal();
+  std::cout << range.print_cal();
 }
 
 void Calendar::new_event() {

@@ -147,8 +147,9 @@ void calendarrange_tests() {
 void calendar_tests() {
   Calendar cal = Calendar();
   cal.load_events("/Users/ct/projects/plan/planner/tests/test.dat");
+  cal.set_range(2023, 12, 1, 2023, 12, 31);
   //cal.new_event();
-  cal.print_month();
+  cal.print();
   cal.save_events("/Users/ct/projects/plan/planner/tests/test.out");
 }
 
