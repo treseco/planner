@@ -144,10 +144,19 @@ void calendarrange_tests() {
   std::cout << cr3.print_cal();
 }
 
+void calendar_tests() {
+  Calendar cal = Calendar();
+  cal.load_events("/Users/ct/projects/plan/planner/tests/test.dat");
+  //cal.new_event();
+  cal.print_month();
+  cal.save_events("/Users/ct/projects/plan/planner/tests/test.out");
+}
+
 int main() {
   date_tests();
   timerange_tests();
   event_tests();
   calendarrange_tests();
+  calendar_tests();
   return 0;
 }

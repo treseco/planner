@@ -21,7 +21,7 @@ debug: $(SOURCES)
 
 # Compiler planner tests
 test: $(TESTSORCES) datetime.cpp
-	$(CXX) $(CXXFLAGS) $(DBGFLAGS) datetime.cpp $(TESTSORCES) -o $(EXECUTABLE)_tests
+	$(CXX) $(CXXFLAGS) $(DBGFLAGS) datetime.cpp cal.cpp $(TESTSORCES) -o $(EXECUTABLE)_tests
 
 # Remove anything created by a makefile
 clean:

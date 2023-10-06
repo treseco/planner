@@ -4,6 +4,10 @@
 #include <chrono>
 #include <string>
 #include <vector>
+  
+#define DAYS_IN_WEEK 7
+static const int DAYS_IN_MONTH[12] = {31, 29, 31, 30, 31, 30,
+                                      31, 31, 30, 31, 30, 31};
 
 class Date {
 private:
