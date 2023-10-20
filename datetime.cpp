@@ -220,7 +220,12 @@ std::string CalendarRange::print_cal() {
           if(events_in_range[i].contains(d)) {
             if(d == events_in_range[i].get_begin()) { //event begins on current day
               colored_tag  = color(events_in_range[i].get_tag(), bg_colors[color_idx]);
-              colored_fill = color(std::string(DEFAULT_DAY_WIDTH-events_in_range[i].get_tag().length()-1,'='), fg_colors[color_idx]);
+              colored_fill = color(std::string(DEFAULT_DAY_WIDTH-events_in_range[i].get_tag().length()-2,'='), fg_colors[color_idx]);
+              if(d == events_in_range[i].get_end()) {
+                colored_fill = colored_fill + color("*", fg_colors[color_idx]);
+              } else {
+                colored_fill = colored_fill + color("=", fg_colors[color_idx]);
+              }
               event_strings[i] += color("*", fg_colors[color_idx]) + colored_tag + colored_fill;
             } else if (d == events_in_range[i].get_end()) { //event ends on current day
               colored_fill = color(std::string(DEFAULT_DAY_WIDTH-1, '=')+"*", fg_colors[color_idx]);
