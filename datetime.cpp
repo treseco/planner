@@ -205,7 +205,10 @@ std::string CalendarRange::print_cal() {
         }
       } else {
         std::string date_str = std::to_string(d.day());
-        std::string spaces   = std::string(DEFAULT_DAY_WIDTH-1-(date_str.length()), ' ');
+        if(d.day() == 1) {
+          date_str += " " + MONTH_ABREV[d.month()];
+        }
+        std::string spaces = std::string(DEFAULT_DAY_WIDTH-1-(date_str.length()), ' ');
         if(d == today) date_str = color(date_str, RED);
 
         date_row += "| " + date_str + spaces;

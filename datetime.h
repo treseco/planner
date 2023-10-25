@@ -6,8 +6,11 @@
 #include <vector>
   
 #define DAYS_IN_WEEK 7
-static const int DAYS_IN_MONTH[12] = {31, 29, 31, 30, 31, 30,
-                                      31, 31, 30, 31, 30, 31};
+static const unsigned DAYS_IN_MONTH[13] = {0, 31, 29, 31, 30, 31, 30,
+                                              31, 31, 30, 31, 30, 31};
+
+static const std::string MONTH_ABREV[13] = {"", "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                                                "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 
 class Date {
 private:
