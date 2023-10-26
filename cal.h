@@ -19,6 +19,7 @@ public:
   void print();
   void new_event();
   void remove_event();
+  void list_events();
 };
 
 #endif

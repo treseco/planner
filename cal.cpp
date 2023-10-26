@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <unordered_map>
 
 #include "cal.h"
@@ -134,4 +135,13 @@ void Calendar::new_event() {
   Date b_dt = Date(begin_y, begin_m, begin_d);
   Date e_dt = Date(end_y, end_m, end_d);
   events.push_back(Event(title, tag, b_dt, e_dt));
+}
+
+void Calendar::list_events() {
+  for(size_t i = 0; i < events.size(); i++) {
+    std::cout << std::setw(4) << events[i].get_tag()
+              << ": " << events[i].get_begin()
+              << " to " << std::setw(11) << events[i].get_end() 
+              << "  " << events[i].get_title() << std::endl;
+  }
 }
