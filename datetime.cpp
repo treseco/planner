@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <exception>
 #include <iostream>
+#include <iomanip>
 #include "datetime.h"
 #include "config.h"
 #include "color.h"
@@ -108,7 +109,11 @@ std::strong_ordering Date::operator<=>(const Date &rhs) const {
 }
 
 std::ostream & operator<< (std::ostream &out, const Date &d) {
-  out << d.year() << "-" << d.month() << "-" << d.day();
+  out << std::setfill('0') 
+      << std::setw(4) << d.year() << "-" 
+      << std::setw(2) << d.month() << "-" 
+      << std::setw(2) << d.day()
+      << std::setfill(' ');
   return out;
 }
 
