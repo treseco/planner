@@ -265,7 +265,7 @@ std::string CalendarRange::print_cal() {
 void CalendarRange::set_events(std::vector<Event> *events) {
   for (size_t i = 0; i < events->size(); i++) {
     Event e = (*events)[i];
-    if (e.get_begin() < this->get_end() && e.get_end() >= this->get_begin()) {
+    if (e.get_begin() <= this->get_end() && e.get_end() >= this->get_begin()) {
       events_in_range.push_back((*events)[i]);
     }
   }
