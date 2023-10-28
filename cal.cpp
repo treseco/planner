@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -143,5 +144,27 @@ void Calendar::list_events() {
               << ": " << events[i].get_begin()
               << " to " << std::setw(11) << events[i].get_end() 
               << "  " << events[i].get_title() << std::endl;
+  }
+}
+
+void Calendar::remove_event(std::optional<char *> tag_arg) {
+  std::string tag;
+
+  if(tag_arg.has_value()) {
+    tag = tag_arg.value();
+  } else {
+    std::cout << "Enter Event Tag: ";
+    std::cin >> tag;
+  }
+  Date d = Date();
+
+  Event e = Event(tag, tag, d, d);
+  
+  std::sort(events.begin(), events.end(), Event::tag_alpha);
+  auto lbound = std::lower_bound(events.begin(), events.end(), e, Event::tag_alpha);
+  if (lbound->get_tag().compare(tag) == 0) {
+    events.erase(lbound);
+  } else {
+    std::cout << tag << "not found." << std::endl;
   }
 }

@@ -2,6 +2,7 @@
 #define CAL_H
 
 #include <string>
+#include <optional>
 #include <vector>
 #include "datetime.h"
 
@@ -18,7 +19,7 @@ public:
   void set_range(int by, unsigned bm, unsigned bd, int ey, unsigned em, unsigned ed);
   void print();
   void new_event();
-  void remove_event();
+  void remove_event(std::optional<char *> tag_arg = std::nullopt);
   void list_events();
 };
 

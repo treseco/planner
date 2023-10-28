@@ -119,6 +119,12 @@ public:
   std::string get_title();
   //return event tag
   std::string get_tag();
+
+  struct {
+    bool operator()(Event x, Event y) const {
+      return x.tag.compare(y.tag) < 0;
+    }
+  }static tag_alpha;
 };
 
 
