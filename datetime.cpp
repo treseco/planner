@@ -169,7 +169,7 @@ std::string CalendarRange::print_cal() {
   //set key
   for (size_t i = 0; i < events_in_range.size(); i++) {
     int color_idx = i % (sizeof(fg_colors) / sizeof(*fg_colors));
-    key += color(color(events_in_range[i].get_tag(), bg_colors[color_idx]), BLACK);
+    key += color(events_in_range[i].get_tag(), bg_colors[color_idx]+BLACK);
     key += ": ";
     key += events_in_range[i].get_title() + '\n';
   }
@@ -227,7 +227,7 @@ std::string CalendarRange::print_cal() {
 
           if(events_in_range[i].contains(d)) {
             if(d == events_in_range[i].get_begin()) { //event begins on current day
-              colored_tag  = color(color(events_in_range[i].get_tag(), bg_colors[color_idx]), BLACK);
+              colored_tag  = color(events_in_range[i].get_tag(), bg_colors[color_idx]+BLACK);
               colored_fill = color(std::string(DEFAULT_DAY_WIDTH-events_in_range[i].get_tag().length()-2,'='), fg_colors[color_idx]);
               if(d == events_in_range[i].get_end()) {
                 colored_fill = colored_fill + color("*", fg_colors[color_idx]);
