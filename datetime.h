@@ -15,7 +15,7 @@ static const std::string MONTH_ABREV[13] = {"", "JAN", "FEB", "MAR", "APR", "MAY
 class Date {
 private:
   std::chrono::year_month_day ymd;
-  int serial;
+  long int serial;
 
   //updates serial value for ymd
   void update_serial();
@@ -39,7 +39,7 @@ public:
   //=== Accessors ===
 
   //return date as days since epoch (1970-1-1)
-  int serial_time() const; //return date as days since epoch 
+  long int serial_time() const; //return date as days since epoch 
   //return day
   unsigned day() const;
   //return month
@@ -61,6 +61,10 @@ public:
   void change_month(int delta);
   //add signed value delta to year and validate date
   void change_year(int delta);
+  //set date to the beginning of the current week (prev sunday).
+  void snap_to_wk_begin();
+  //set date to the end of the current week (next sunday).
+  void snap_to_wk_end();
 
   //=== Operators ===
 
@@ -141,6 +145,8 @@ private:
     }
   } static starts_before;
 
+  std::string gen_key();
+
 public:
 
   // === Constructors ===
@@ -159,6 +165,7 @@ public:
   std::string print_cal(); //print out calendar events over calendar range
 };
 
+Date get_todays_date();
 
 #endif
 

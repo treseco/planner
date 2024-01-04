@@ -21,7 +21,7 @@ Date::Date(int y, unsigned m, unsigned d)
   update_serial();
 }
 
-int Date::serial_time() const { 
+long int Date::serial_time() const { 
   return serial; 
 }
 
@@ -87,6 +87,15 @@ void Date::change_year(int delta) {
   }
   validate_ymd();
   update_serial();
+}
+
+void Date::snap_to_wk_begin() {
+  change_day(-static_cast<int>(weekday_index()));
+}
+
+void Date::snap_to_wk_end() {
+  snap_to_wk_begin();
+  change_day(DAYS_IN_WEEK);
 }
 
 void Date::update_serial() {
@@ -156,35 +165,39 @@ CalendarRange::CalendarRange() : TimeRange() {}
 
 CalendarRange::CalendarRange(Date &begin, Date &end) : TimeRange(begin, end) {}
 
-std::string CalendarRange::print_cal() {
-
-  std::string empty_day(DEFAULT_DAY_WIDTH + 1, ' ');
-  std::chrono::sys_days today_serial = std::chrono::sys_days{
-      std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
-  Date today = Date(today_serial);
-
-  std::string cal = "";
+std::string CalendarRange::gen_key() {
   std::string key = "";
-
-  //set key
   for (size_t i = 0; i < events_in_range.size(); i++) {
-    int color_idx = i % (sizeof(fg_colors) / sizeof(*fg_colors));
+    long int color_idx = i % NUM_COLORS;
     key += color(events_in_range[i].get_tag(), bg_colors[color_idx]+BLACK);
     key += ": ";
     key += events_in_range[i].get_title() + '\n';
   }
+  return key;
+}
+
+std::string CalendarRange::print_cal() {
+
+  std::string empty_day(DEFAULT_DAY_WIDTH + 1, ' ');
+  Date today = get_todays_date();
+
+  std::string cal = "";
+  std::string key = gen_key();
 
   //get full week containing begin
   Date wk_begin = get_begin();
-  wk_begin.change_day(-static_cast<int>((get_begin().weekday_index())));
-  Date wk_end = wk_begin;
-  wk_end.change_day(DAYS_IN_WEEK);
+  Date wk_end   = get_begin();
+  wk_begin.snap_to_wk_begin();
+  wk_end.snap_to_wk_end();
 
   std::string separator = "";
   std::string date_row = "";
   std::vector<std::string> event_strings;
+  std::vector<std::pair<bool, size_t> > event_slots;
+
   for(size_t i = 0; i < events_in_range.size(); ++i) {
     event_strings.emplace_back("");
+    event_slots.emplace_back(std::make_pair(false, 0));
   }
   
   for(unsigned i = 0; i < DAYS_IN_WEEK; ++i) {
@@ -201,7 +214,8 @@ std::string CalendarRange::print_cal() {
     //for each day in the week
     for(Date d = wk_begin; d < wk_end && d <= get_end(); d.change_day(1)) {
       
-      separator += "+" + std::string(DEFAULT_DAY_WIDTH, '-');
+      separator += "+";
+      separator += std::string(DEFAULT_DAY_WIDTH, '-');
 
       if(d < get_begin()) { // if current day is before range begin
         date_row += empty_day;
@@ -222,7 +236,7 @@ std::string CalendarRange::print_cal() {
         for(size_t i = 0; i < events_in_range.size(); ++i) {
           std::string colored_tag;
           std::string colored_fill;
-          int color_idx = i % (sizeof(fg_colors) / sizeof(*fg_colors));
+          long int color_idx = i % (sizeof(fg_colors) / sizeof(*fg_colors));
           event_strings[i] += "|";
 
           if(events_in_range[i].contains(d)) {
@@ -271,4 +285,10 @@ void CalendarRange::set_events(std::vector<Event> *events) {
   }
 
   std::sort(events_in_range.begin(), events_in_range.end(), starts_before);
+}
+
+Date get_todays_date() {
+  using namespace std::chrono;
+  sys_days today_serial = sys_days{floor<days>(system_clock::now())};
+  return Date(today_serial);
 }

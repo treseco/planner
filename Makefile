@@ -1,13 +1,13 @@
 # Makefile
 
 # Compiler
-CXX = clang++
+CXX = g++
 
 # Compiler flags (including debug info)
 CXXFLAGS   = -std=c++20 -Wall -Werror -Wconversion -Wextra
 DBGFLAGS   = -g3 -DDEBUG # defines DEBUG for #ifdef DEBUG ... #endif
 EXECUTABLE = planner
-SOURCES    = cal.cpp datetime.cpp planner.cpp
+SOURCES    = cal.cpp datetime.cpp planner.cpp color.cpp
 TESTSORCES = tests.cpp
 
 

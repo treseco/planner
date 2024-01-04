@@ -23,14 +23,12 @@
 #define GRAY "\x1b[90m"
 #define BGGRAY "\x1b[100m"
 
-std::string fg_colors[] = {
-  BLUE, YELLOW, MAGENTA, GREEN, CYAN, RED,
-};
+#define NUM_COLORS 6
 
-std::string bg_colors[] = {
-  BGBLUE, BGYELLOW, BGMAGENTA, BGGREEN, BGCYAN, BGRED,
-};
+extern std::string fg_colors[NUM_COLORS];
 
-inline std::string color(std::string s, std::string c) { return c + s + RESET; }
+extern std::string bg_colors[NUM_COLORS];
+
+std::string color(std::string s, std::string c);
 
 #endif

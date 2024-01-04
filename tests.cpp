@@ -3,11 +3,13 @@
 #include <string>
 #include <vector>
 
+#include "color.h"
 #include "cal.h"  
 #include "datetime.h"
 
-
 void date_tests() {
+  std::cout << NUM_COLORS << std::endl;
+
   std::cout << "Testing Date" << std::endl;
   Date default_ctor = Date();
   std::cout << "Expecting: 1970-1-1" << std::endl
@@ -28,9 +30,17 @@ void date_tests() {
   manual_ctor.change_month(15);
   std::cout << "Expecting: 2003-3-1" << std::endl
             << "Result:    " << manual_ctor << std::endl;
+  manual_ctor.snap_to_wk_begin();
+  std::cout << "Expecting: 2003-2-23" << std::endl
+            << "Result:    " << manual_ctor << std::endl;
+  manual_ctor.snap_to_wk_end();
+  std::cout << "Expecting: 2003-3-2" << std::endl
+            << "Result:    " << manual_ctor << std::endl;
+
   try {
     Date invalid = Date(1999, 2, 30);
     assert(false);
+    invalid.change_day(1);
   } catch (std::exception &ex) {
     std::cout << "Caught expected exception for invalid date passed to Date ctor:"  
               << std::endl << ex.what() << std::endl;
@@ -79,6 +89,7 @@ void timerange_tests() {
   try {
     TimeRange tr3 = TimeRange(e1, b1);
     assert(false);
+    tr3.get_begin(); 
   } catch (std::exception &ex) {
     std::cout << "Caught expected exception for invalid dates passed to TimeRange ctor:"  
               << std::endl << ex.what() << std::endl; 
@@ -86,11 +97,16 @@ void timerange_tests() {
   try {
     TimeRange tr4 = TimeRange(e2_days, b2_days);
     assert(false);
+    tr4.get_begin();
   } catch (std::exception &ex) {
     std::cout << "Caught expected exception for invalid dates passed to TimeRange ctor:"  
               << std::endl << ex.what() << std::endl; 
   }
   TimeRange tr5 = TimeRange(Date(2222, 12, 12), Date(2222, 12, 12));
+  Date intr5  = Date(2222, 12, 12);
+  Date outtr5 = Date(2222, 12, 13);
+  assert(tr5.contains(intr5));
+  assert(!tr5.contains(outtr5));
 }
 
 void event_tests() {
