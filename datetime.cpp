@@ -113,6 +113,17 @@ bool Date::operator==(const Date &rhs) const {
   return this->serial_time() == rhs.serial_time();
 }
 
+Date& Date::operator++ () {
+  this->change_day(1);
+  return *this;
+}
+
+Date Date::operator++ (int) {
+  Date result(*this);
+  ++(*this);
+  return result;
+}
+
 std::strong_ordering Date::operator<=>(const Date &rhs) const {
   return serial_time() <=> rhs.serial_time();
 }
@@ -207,12 +218,23 @@ std::string CalendarRange::print_cal() {
       separator += "+" + std::string(DEFAULT_DAY_WIDTH, '-');
     }
   }
+  
+  /*
+  do {
+    cal += separator + "+\n";
+    separator = "";
+
+    //TODO
+
+  } while(wk_begin <= get_end());
+  */
+
 
   do { //for each week in the range
     cal += separator + "+\n";
     separator = "";
     //for each day in the week
-    for(Date d = wk_begin; d < wk_end && d <= get_end(); d.change_day(1)) {
+    for(Date d = wk_begin; d < wk_end && d <= get_end(); ++d) {
       
       separator += "+";
       separator += std::string(DEFAULT_DAY_WIDTH, '-');

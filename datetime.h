@@ -70,6 +70,9 @@ public:
 
   //equals operator
   bool operator==(const Date &rhs) const;
+  //increment operators
+  Date& operator++ ();
+  Date operator++ (int);
   //spaceship operator
   std::strong_ordering operator<=>(const Date &rhs) const;
   //stream operator, outputs date as YYYY-MM-DD
