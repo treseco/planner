@@ -172,9 +172,10 @@ std::string Event::get_tag() { return tag; }
 
 
 // === CalendarRange ===
-CalendarRange::CalendarRange() : TimeRange() {}
+CalendarRange::CalendarRange() : TimeRange(), max_concurrent_events(0) {}
 
-CalendarRange::CalendarRange(Date &begin, Date &end) : TimeRange(begin, end) {}
+CalendarRange::CalendarRange(Date &begin, Date &end) 
+  : TimeRange(begin, end), max_concurrent_events(0) {}
 
 std::string CalendarRange::gen_key() {
   std::string key = "";
@@ -203,14 +204,17 @@ std::string CalendarRange::print_cal() {
 
   std::string separator = "";
   std::string date_row = "";
-  std::vector<std::string> event_strings;
   std::vector<std::pair<bool, size_t> > event_slots;
+  std::vector<std::string> event_strings;
 
-  for(size_t i = 0; i < events_in_range.size(); ++i) {
-    event_strings.emplace_back("");
+  //setup event slots
+  size_t next_to_start = 0;
+  for(size_t i = 0; i < max_concurrent_events; ++i) {
     event_slots.emplace_back(std::make_pair(false, 0));
+    event_strings.emplace_back("");
   }
   
+  //setup initial separator
   for(unsigned i = 0; i < DAYS_IN_WEEK; ++i) {
     if(i < get_begin().weekday_index()) {
       separator += empty_day;
@@ -219,17 +223,95 @@ std::string CalendarRange::print_cal() {
     }
   }
   
-  /*
   do {
+    // add a separator prior to each week in the range.
     cal += separator + "+\n";
     separator = "";
 
-    //TODO
+    for(Date d = wk_begin; d < wk_end && d <= get_end(); ++d) {
 
+      // extend the separator for each day in the week
+      // this separator goes below the current week
+      separator += "+";
+      separator += std::string(DEFAULT_DAY_WIDTH, '-');
+
+      if(d < get_begin()) {
+        // handle range starting in the middle of a week
+        date_row += empty_day;
+        for(size_t i = 0; i < event_strings.size(); ++i) {
+          event_strings[i] += empty_day;
+        }
+      } else {
+        //set date_row for day d
+        std::string date_str = std::to_string(d.day());
+        if(d.day() == 1) {
+          date_str += " " + MONTH_ABREV[d.month()];
+        }
+        std::string spaces = std::string(DEFAULT_DAY_WIDTH-1-(date_str.length()), ' ');
+        if(d == today) date_str = color(date_str, RED);
+
+        date_row += "| " + date_str + spaces;
+
+        //assign starting events an event slot
+        while(events_in_range[next_to_start].contains(d)) {
+          for(size_t i = 0; i < event_slots.size(); ++i) {
+            auto &[used, event_idx] = event_slots[i];
+            if(!used) {
+              used = true;
+              event_idx = next_to_start;
+              break;
+            }
+          }
+          ++next_to_start;
+        }
+        
+        //update event strings
+        for(size_t i = 0; i < event_slots.size(); ++i) {
+          auto &[used, event_idx] = event_slots[i];
+          std::string tag;
+          std::string fill;
+          long int color_idx = event_idx % NUM_COLORS;
+          event_strings[i] += "|";
+          if(used) {
+            Event current_event = events_in_range[event_idx];
+             
+            if(current_event.get_begin() == d) {
+              tag  = color(current_event.get_tag(), bg_colors[color_idx]+BLACK);
+              fill = color(std::string(DEFAULT_DAY_WIDTH-current_event.get_tag().length()-2, '='), fg_colors[color_idx]);
+              if(current_event.get_end() == d) {
+                fill += color("*", fg_colors[color_idx]);
+                used = false;
+              } else {
+                fill += color("=", fg_colors[color_idx]);
+              }
+              event_strings[i] += color("*", fg_colors[color_idx]) + tag + fill;
+            } else if (current_event.get_end() == d) {
+              fill = color(std::string(DEFAULT_DAY_WIDTH-1, '=')+"*", fg_colors[color_idx]);
+              event_strings[i] += fill;
+              used = false;
+            } else {
+              fill = color(std::string(DEFAULT_DAY_WIDTH, '='), fg_colors[color_idx]);
+              event_strings[i] += fill;
+            }
+          } else {
+            event_strings[i] += std::string(DEFAULT_DAY_WIDTH, ' ');
+          }
+        }
+      }
+    }
+    cal += date_row + "|\n";
+    date_row = "";
+    for(size_t i = 0; i < event_strings.size(); ++i) {
+      cal += event_strings[i] + "|\n";
+      event_strings[i] = "";
+    }
+    wk_begin.change_day(DAYS_IN_WEEK);
+    wk_end.change_day(DAYS_IN_WEEK);
   } while(wk_begin <= get_end());
-  */
-
-
+  cal += separator + "\n" + key;
+  return cal;
+}
+/*
   do { //for each week in the range
     cal += separator + "+\n";
     separator = "";
@@ -297,16 +379,32 @@ std::string CalendarRange::print_cal() {
   cal += key;
   return cal;
 }
+*/
 
 void CalendarRange::set_events(std::vector<Event> *events) {
-  for (size_t i = 0; i < events->size(); i++) {
+  //populate events_in range with valid events from 'events'
+  for(size_t i = 0; i < events->size(); ++i) {
     Event e = (*events)[i];
     if (e.get_begin() <= this->get_end() && e.get_end() >= this->get_begin()) {
       events_in_range.push_back((*events)[i]);
     }
   }
 
+  //sort valid events by start time
   std::sort(events_in_range.begin(), events_in_range.end(), starts_before);
+
+  //calculate max_concurrent_events in events_in_range
+  for(Date d = get_begin(); d <= get_end(); ++d) {
+    size_t events_on_day = 0;
+    for(size_t i = 0; i < events_in_range.size(); ++i) {
+      if(events_in_range[i].contains(d)) {
+        ++events_on_day;
+      }
+    }
+    if(events_on_day > max_concurrent_events) {
+      max_concurrent_events = events_on_day;
+    }
+  }
 }
 
 Date get_todays_date() {

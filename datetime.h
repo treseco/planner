@@ -138,6 +138,7 @@ public:
 class CalendarRange : public TimeRange {
 private:
   std::vector<Event> events_in_range;
+  size_t max_concurrent_events;
 
   struct {
     bool operator()(Event x, Event y) {
