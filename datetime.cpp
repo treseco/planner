@@ -253,7 +253,7 @@ std::string CalendarRange::print_cal() {
         date_row += "| " + date_str + spaces;
 
         //assign starting events an event slot
-        while(events_in_range[next_to_start].contains(d)) {
+        while(!events_in_range.empty() && events_in_range[next_to_start].contains(d)) {
           for(size_t i = 0; i < event_slots.size(); ++i) {
             auto &[used, event_idx] = event_slots[i];
             if(!used) {
@@ -308,7 +308,7 @@ std::string CalendarRange::print_cal() {
     wk_begin.change_day(DAYS_IN_WEEK);
     wk_end.change_day(DAYS_IN_WEEK);
   } while(wk_begin <= get_end());
-  cal += separator + "\n" + key;
+  cal += separator + "+\n" + key;
   return cal;
 }
 /*
