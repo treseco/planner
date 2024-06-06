@@ -48,16 +48,16 @@ int main(int argc, char** argv) {
       begin_month = static_cast<unsigned>(param);
       begin_day = 1;
       end_month = begin_month;
-      end_day = (param == 2 && std::chrono::year{end_year}.is_leap()) ?
-        DAYS_IN_MONTH[param] : DAYS_IN_MONTH[param]-1;
+      end_day = (param == 2 && !std::chrono::year{end_year}.is_leap()) ?
+        DAYS_IN_MONTH[param]-1 : DAYS_IN_MONTH[param];
       break;
  
     case 'y':
       param = atoi(optarg);
       begin_year = param;
       end_year = param;
-      end_day = (end_month == 2 && std::chrono::year{end_year}.is_leap()) ?
-        DAYS_IN_MONTH[end_month] : DAYS_IN_MONTH[end_month]-1;
+      end_day = (end_month == 2 && !std::chrono::year{param}.is_leap()) ?
+        DAYS_IN_MONTH[end_month]-1 : DAYS_IN_MONTH[end_month];
       break;
   
     case 'n':
